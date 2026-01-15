@@ -1,16 +1,8 @@
 import React from 'react';
 
-interface InputProps {
-  id?: string;
-  name: string;
-  type?: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
-  required?: boolean;
-  className?: string;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -23,7 +15,8 @@ const Input: React.FC<InputProps> = ({
   label,
   error,
   required = false,
-  className = ''
+  className = '',
+  ...props
 }) => {
   return (
     <div className="mb-4">
@@ -45,6 +38,7 @@ const Input: React.FC<InputProps> = ({
         } ${className}`}
         aria-invalid={!!error}
         aria-describedby={error ? `${id || name}-error` : undefined}
+        {...props}
       />
       {error && (
         <p id={`${id || name}-error`} className="mt-1 text-sm text-red-600">
