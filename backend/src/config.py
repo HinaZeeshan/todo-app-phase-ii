@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
 
     # CORS
-    cors_origins: str = "http://localhost:3000"
+    cors_origins: str = "http://localhost:3000,https://todo-app-phase-ii-ashen.vercel.app"
 
     # Application
     environment: str = "development"
