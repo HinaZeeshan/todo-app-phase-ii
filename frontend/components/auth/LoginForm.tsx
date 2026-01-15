@@ -68,7 +68,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onError }) => {
         name="email"
         type="email"
         autoComplete="email"
-        required
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Email address"
@@ -82,7 +81,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onError }) => {
         name="password"
         type="password"
         autoComplete="current-password"
-        required
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"

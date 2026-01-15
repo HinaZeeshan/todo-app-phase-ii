@@ -75,7 +75,6 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onError }) =>
         name="email"
         type="email"
         autoComplete="email"
-        required
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Email address"
@@ -89,7 +88,6 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onError }) =>
         name="password"
         type="password"
         autoComplete="new-password"
-        required
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"
@@ -103,7 +101,6 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSuccess, onError }) =>
         name="confirmPassword"
         type="password"
         autoComplete="new-password"
-        required
         value={confirmPassword}
         onChange={(e) => setConfirmPassword(e.target.value)}
         placeholder="Confirm Password"

@@ -1,4 +1,5 @@
 import { getAuthToken } from './auth';
+import { TodoItem } from '../types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
@@ -101,35 +102,35 @@ export const authApi = {
 // Todo API functions
 export const todoApi = {
   getAll: async () => {
-    return apiRequest('/todos');
+    return apiRequest<{ todos: TodoItem[] }>('/todos');
   },
 
   getById: async (id: string) => {
-    return apiRequest(`/todos/${id}`);
+    return apiRequest<{ todo: TodoItem }>(`/todos/${id}`);
   },
 
-  create: async (todo: { title: string; description?: string; completed?: boolean }) => {
-    return apiRequest('/todos', {
+  create: async (todo: { title: string; description?: string | null; completed?: boolean }) => {
+    return apiRequest<{ todo: TodoItem }>('/todos', {
       method: 'POST',
       body: JSON.stringify(todo)
     });
   },
 
-  update: async (id: string, todo: { title?: string; description?: string; completed?: boolean }) => {
-    return apiRequest(`/todos/${id}`, {
+  update: async (id: string, todo: { title?: string; description?: string | null; completed?: boolean }) => {
+    return apiRequest<{ todo: TodoItem }>(`/todos/${id}`, {
       method: 'PUT',
       body: JSON.stringify(todo)
     });
   },
 
   toggleCompletion: async (id: string) => {
-    return apiRequest(`/todos/${id}/toggle`, {
+    return apiRequest<{ todo: TodoItem }>(`/todos/${id}/toggle`, {
       method: 'PATCH'
     });
   },
 
   delete: async (id: string) => {
-    return apiRequest(`/todos/${id}`, {
+    return apiRequest<{ success: boolean }>(`/todos/${id}`, {
       method: 'DELETE'
     });
   }
