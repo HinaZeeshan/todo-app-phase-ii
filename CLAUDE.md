@@ -1,3 +1,4 @@
+
 # Claude Code Rules
 
 This file is generated during init for the selected agent.
@@ -30,6 +31,45 @@ Agents MUST prioritize and use MCP tools and CLI commands for all information ga
 
 ### 2. Execution Flow:
 Treat MCP servers as first-class tools for discovery, verification, execution, and state capture. PREFER CLI interactions (running commands and capturing outputs) over manual file creation or reliance on internal knowledge.
+
+### 2a. Project-Specific Agent Usage:
+This project uses specialized agents for different domains. You MUST delegate to the appropriate agent based on the task context:
+
+**Authentication & Security:**
+- Use **Auth Agent** (`auth-agent`) for all authentication and authorization work
+- Triggers: signup/login flows, password hashing, JWT/session handling, refresh tokens, OAuth/SSO, Better Auth integrations
+- Covers: security audits, performance optimization of auth flows, credential verification, token management
+- Invoke proactively after implementing or modifying any auth-related code
+
+**API Development:**
+- Use **API Agent** for API design, implementation, and optimization
+- Triggers: REST/GraphQL endpoint design, API contracts, versioning, error handling
+- Covers: request/response validation, middleware, API documentation, contract testing
+
+**Backend Development:**
+- Use **FastAPI Backend Agent** (`fastapi-performance-optimizer`) for FastAPI-specific backend work
+- Triggers: FastAPI route implementation, dependency injection, background tasks, performance issues
+- Covers: async optimization, request validation overhead, middleware latency, database query optimization within FastAPI context
+- Invoke proactively when auth middleware adds latency, database queries are slow, or API response times are high
+
+**Frontend Development:**
+- Use **Frontend Agent** (`frontend-perf-optimizer`) for Next.js and React frontend work
+- Triggers: component implementation, state management, routing, UI/UX features, bundle size concerns
+- Covers: rendering performance, bundle optimization, code splitting, animation performance
+- Invoke proactively after implementing complex UI components, animations, or when adding heavy dependencies
+
+**Database Operations:**
+- Use **DB Agent** (`database-optimizer`) for Neon Serverless PostgreSQL work
+- Triggers: schema design, query optimization, migrations, connection pooling, performance issues
+- Covers: index optimization, query plan analysis, cost optimization, connection management
+- Invoke proactively for schema changes, slow queries, or connection timeout issues
+
+**Agent Invocation Guidelines:**
+1. Identify the domain from the user request or implementation context
+2. Use the Task tool with the appropriate `subagent_type` to delegate
+3. Provide clear context about what was implemented and what needs review/optimization
+4. Invoke agents proactively after significant implementation work in their domain
+5. Multiple agents may be needed for full-stack features (e.g., Auth Agent + DB Agent + Frontend Agent)
 
 ### 3. Knowledge capture (PHR) for Every User Input.
 After completing requests, you **MUST** create a PHR (Prompt History Record).
