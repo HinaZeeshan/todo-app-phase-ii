@@ -22,7 +22,7 @@ class UserRepository:
             db: Async SQLAlchemy session
         """
         self.db = db
-        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        self.pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
     def hash_password(self, password: str) -> str:
         """

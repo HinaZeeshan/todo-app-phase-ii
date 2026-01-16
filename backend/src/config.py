@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     # Application
     environment: str = "development"
     log_level: str = "INFO"
+    refresh_token_expire_days: int = 7
 
     model_config = SettingsConfigDict(
         env_file=".env",

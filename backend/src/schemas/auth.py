@@ -38,6 +38,7 @@ class SignupResponse(BaseModel):
     user_id: UUID
     email: str
     token: str
+    refresh_token: str
 
 
 class LoginRequest(BaseModel):
@@ -58,6 +59,19 @@ class LoginResponse(BaseModel):
     user_id: UUID
     email: str
     token: str
+    refresh_token: str
+
+
+class RefreshTokenRequest(BaseModel):
+    """Request schema for refreshing access token."""
+    refresh_token: str = Field(..., min_length=1)
+
+
+class RefreshTokenResponse(BaseModel):
+    """Response schema for successful token refresh."""
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
 
 
 class LogoutResponse(BaseModel):

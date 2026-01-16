@@ -32,7 +32,11 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Import all models here so Alembic can detect them
-# from src.models import task  # Will be imported once models are created
+# Import all models here so Alembic can detect them
+from src.models.user import User
+from src.models.task import Task
+from src.models.auth_event import AuthenticationEvent
+from src.models.refresh_token import RefreshToken
 
 # add your model's MetaData object here for 'autogenerate' support
 target_metadata = SQLModel.metadata

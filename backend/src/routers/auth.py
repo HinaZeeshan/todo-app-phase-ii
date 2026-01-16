@@ -9,7 +9,7 @@ from slowapi.util import get_remote_address
 
 from ..database import get_db
 from ..services.auth_service import AuthService
-from ..schemas.auth import SignupRequest, SignupResponse, LoginRequest, LoginResponse, LogoutResponse
+from ..schemas.auth import SignupRequest, SignupResponse, LoginRequest, LoginResponse, LogoutResponse, RefreshTokenRequest, RefreshTokenResponse
 
 
 # Initialize rate limiter
@@ -41,12 +41,13 @@ async def signup(
         HTTPException 409: Email already registered
     """
     service = AuthService(db, request)
-    user, token = await service.signup(signup_data)
+    user, token, refresh_token = await service.signup(signup_data)
 
     return SignupResponse(
         user_id=user.id,
         email=user.email,
-        token=token
+        token=token,
+        refresh_token=refresh_token
     )
 
 
@@ -73,12 +74,13 @@ async def login(
         HTTPException 429: Too many failed login attempts
     """
     service = AuthService(db, request)
-    user, token = await service.login(login_data)
+    user, token, refresh_token = await service.login(login_data)
 
     return LoginResponse(
         user_id=user.id,
         email=user.email,
-        token=token
+        token=token,
+        refresh_token=refresh_token
     )
 
 
@@ -106,3 +108,21 @@ async def logout(
     # In a real implementation, this would log the logout event
     # For now, we'll just return a success message
     return LogoutResponse()
+
+
+@router.post("/auth/refresh", response_model=RefreshTokenResponse)
+async def refresh_token(
+    request: Request,
+    refresh_data: RefreshTokenRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Refresh access token using a valid refresh token.
+    """
+    service = AuthService(db, request)
+    access_token, refresh_token = await service.refresh_access_token(refresh_data.refresh_token)
+
+    return RefreshTokenResponse(
+        access_token=access_token,
+        refresh_token=refresh_token
+    )

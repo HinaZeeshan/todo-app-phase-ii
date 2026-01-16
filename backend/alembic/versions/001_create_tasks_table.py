@@ -20,11 +20,16 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # Detect dialect
+    bind = op.get_bind()
+    is_sqlite = bind.dialect.name == 'sqlite'
+
     # Create tasks table
+    # Use generic sa.Uuid which maps to UUID on Postgres and CHAR(32)/GUID on SQLite
     op.create_table(
         'tasks',
-        sa.Column('id', postgresql.UUID(as_uuid=True), primary_key=True),
-        sa.Column('user_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.Uuid(), primary_key=True),
+        sa.Column('user_id', sa.Uuid(), nullable=False),
         sa.Column('title', sa.String(length=500), nullable=False),
         sa.Column('is_completed', sa.Boolean(), nullable=False, server_default='false'),
         sa.Column('completed_at', sa.DateTime(), nullable=True),
@@ -44,32 +49,44 @@ def upgrade() -> None:
     op.create_index('idx_tasks_composite', 'tasks', ['user_id', 'id'])
     op.create_index('idx_tasks_created_at', 'tasks', [sa.text('created_at DESC')])
 
-    # Create trigger function for updated_at
-    op.execute("""
-        CREATE OR REPLACE FUNCTION update_updated_at_column()
-        RETURNS TRIGGER AS $$
+    # Create triggers
+    if is_sqlite:
+        # SQLite trigger
+        op.execute("""
+        CREATE TRIGGER update_tasks_updated_at AFTER UPDATE ON tasks
         BEGIN
-            NEW.updated_at = CURRENT_TIMESTAMP;
-            RETURN NEW;
+            UPDATE tasks SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
         END;
-        $$ LANGUAGE plpgsql;
-    """)
+        """)
+    else:
+        # Postgres trigger function and trigger
+        op.execute("""
+            CREATE OR REPLACE FUNCTION update_updated_at_column()
+            RETURNS TRIGGER AS $$
+            BEGIN
+                NEW.updated_at = CURRENT_TIMESTAMP;
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;
+        """)
 
-    # Create trigger
-    op.execute("""
-        CREATE TRIGGER update_tasks_updated_at
-        BEFORE UPDATE ON tasks
-        FOR EACH ROW
-        EXECUTE FUNCTION update_updated_at_column();
-    """)
+        op.execute("""
+            CREATE TRIGGER update_tasks_updated_at
+            BEFORE UPDATE ON tasks
+            FOR EACH ROW
+            EXECUTE FUNCTION update_updated_at_column();
+        """)
 
 
 def downgrade() -> None:
-    # Drop trigger
-    op.execute('DROP TRIGGER IF EXISTS update_tasks_updated_at ON tasks')
+    bind = op.get_bind()
+    is_sqlite = bind.dialect.name == 'sqlite'
 
-    # Drop trigger function
-    op.execute('DROP FUNCTION IF EXISTS update_updated_at_column()')
+    if is_sqlite:
+        op.execute('DROP TRIGGER IF EXISTS update_tasks_updated_at')
+    else:
+        op.execute('DROP TRIGGER IF EXISTS update_tasks_updated_at ON tasks')
+        op.execute('DROP FUNCTION IF EXISTS update_updated_at_column()')
 
     # Drop indexes
     op.drop_index('idx_tasks_created_at', table_name='tasks')
