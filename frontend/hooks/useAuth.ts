@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { setAuthToken, getAuthToken, removeAuthToken, isAuthenticated, getUserIdFromToken } from '../lib/auth';
+import { authApi } from '../lib/api';
 
 interface AuthState {
   user: {
@@ -80,26 +81,10 @@ export const useAuth = () => {
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      // In a real app, this would call an API endpoint
-      // For now, we'll simulate a successful login
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const { data } = await authApi.login(email, password);
+      const { token, refresh_token, user } = data;
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMessage = errorData.message || `Login failed: ${response.status} ${response.statusText}`;
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
-      const { token, user } = data;
-
-      setAuthToken(token);
+      setAuthToken(token, refresh_token);
       setAuthState({
         user,
         token,
@@ -124,24 +109,10 @@ export const useAuth = () => {
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const { data } = await authApi.signup(email, password);
+      const { token, refresh_token, user } = data;
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMessage = errorData.message || `Signup failed: ${response.status} ${response.statusText}`;
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
-      const { token, user } = data;
-
-      setAuthToken(token);
+      setAuthToken(token, refresh_token);
       setAuthState({
         user,
         token,

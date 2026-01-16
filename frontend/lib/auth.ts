@@ -1,9 +1,12 @@
 // Authentication helper functions
 
 // Store JWT token in localStorage
-export const setAuthToken = (token: string): void => {
+export const setAuthToken = (token: string, refreshToken?: string): void => {
   if (typeof window !== 'undefined') {
     localStorage.setItem('jwtToken', token);
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
+    }
   }
 };
 
@@ -15,10 +18,19 @@ export const getAuthToken = (): string | null => {
   return null;
 };
 
+// Retrieve Refresh token from localStorage
+export const getRefreshToken = (): string | null => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('refreshToken');
+  }
+  return null;
+};
+
 // Remove JWT token from localStorage
 export const removeAuthToken = (): void => {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('jwtToken');
+    localStorage.removeItem('refreshToken');
   }
 };
 

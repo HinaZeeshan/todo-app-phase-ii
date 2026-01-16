@@ -28,9 +28,7 @@ export const useTasks = () => {
     try {
       const response = await todoApi.getAll();
 
-      if (response.error) {
-        throw new Error(response.error);
-      }
+
 
       setState(prev => ({
         ...prev,
@@ -54,9 +52,7 @@ export const useTasks = () => {
     try {
       const response = await todoApi.create({ title, description, completed: false });
 
-      if (response.error) {
-        throw new Error(response.error);
-      }
+
 
       const newTask = response.data?.todo;
       if (newTask) {
@@ -83,9 +79,7 @@ export const useTasks = () => {
     try {
       const response = await todoApi.update(id, updates);
 
-      if (response.error) {
-        throw new Error(response.error);
-      }
+
 
       const updatedTask = response.data?.todo;
       if (updatedTask) {
@@ -114,9 +108,7 @@ export const useTasks = () => {
     try {
       const response = await todoApi.toggleCompletion(id);
 
-      if (response.error) {
-        throw new Error(response.error);
-      }
+
 
       const updatedTask = response.data?.todo;
       if (updatedTask) {
@@ -145,9 +137,7 @@ export const useTasks = () => {
     try {
       const response = await todoApi.delete(id);
 
-      if (response.error) {
-        throw new Error(response.error);
-      }
+
 
       setState(prev => ({
         ...prev,
