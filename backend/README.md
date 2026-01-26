@@ -234,3 +234,28 @@ alembic downgrade -1
 - OpenAPI JSON: http://localhost:8000/openapi.json
 
 See `/specs/001-backend-api/quickstart.md` for detailed setup and testing guide.
+
+## Deployment to Hugging Face Spaces
+
+This backend can be deployed to Hugging Face Spaces using the provided Docker configuration:
+
+### Prerequisites
+- Dockerfile and .dockerignore are included in the repository
+- Application is configured to run on port 7860 (required by Hugging Face Spaces)
+- Working directory is set to `/app` as expected by Hugging Face
+
+### Deployment Steps
+1. Create a new Space with Docker environment on Hugging Face Hub
+2. Point your Space to this repository
+3. The Dockerfile will automatically:
+   - Set working directory to `/app`
+   - Install Python dependencies from pyproject.toml
+   - Copy application code
+   - Expose port 7860
+   - Run the application with uvicorn on `--host 0.0.0.0 --port 7860`
+
+### Environment Variables
+Configure these secrets in your Hugging Face Space settings:
+- `DATABASE_URL`: PostgreSQL connection string
+- `JWT_SECRET`: Secret key for JWT token signing
+- `CORS_ORIGINS`: Comma-separated list of allowed origins
