@@ -42,13 +42,14 @@ class TaskRepository:
         tasks = result.scalars().all()
         return list(tasks)
 
-    async def create_task(self, user_id: UUID, title: str) -> Task:
+    async def create_task(self, user_id: UUID, title: str, description: str | None = None) -> Task:
         """
         Create a new task for a user.
 
         Args:
             user_id: UUID of the user creating the task
             title: Task title (already validated and stripped)
+            description: Optional task description
 
         Returns:
             Newly created Task object
@@ -57,6 +58,7 @@ class TaskRepository:
             id=uuid4(),
             user_id=user_id,
             title=title,
+            description=description,
             is_completed=False,
             completed_at=None,
             created_at=datetime.utcnow(),
@@ -109,6 +111,7 @@ class TaskRepository:
         self,
         task: Task,
         title: str | None = None,
+        description: str | None = None,
         is_completed: bool | None = None
     ) -> Task:
         """
@@ -117,6 +120,7 @@ class TaskRepository:
         Args:
             task: Task object to update
             title: Optional new title (already validated and stripped)
+            description: Optional new description
             is_completed: Optional completion status
 
         Returns:
@@ -124,6 +128,9 @@ class TaskRepository:
         """
         if title is not None:
             task.title = title
+
+        if description is not None:
+            task.description = description
 
         if is_completed is not None:
             task.is_completed = is_completed

@@ -14,6 +14,7 @@ class TaskResponse(BaseModel):
     id: UUID
     user_id: UUID
     title: str
+    description: Optional[str] = None
     is_completed: bool
     completed_at: Optional[datetime]
     created_at: datetime
@@ -57,6 +58,7 @@ class TaskCreate(BaseModel):
     """Request schema for creating a new task."""
 
     title: str = Field(..., min_length=1, max_length=500, description="Task title")
+    description: Optional[str] = Field(None, max_length=1000, description="Task description")
 
     @validator("title")
     def title_not_empty(cls, v):
@@ -69,6 +71,7 @@ class TaskUpdate(BaseModel):
     """Request schema for updating an existing task."""
 
     title: Optional[str] = Field(None, min_length=1, max_length=500)
+    description: Optional[str] = Field(None, max_length=1000)
     is_completed: Optional[bool] = None
 
     @validator("title")

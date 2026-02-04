@@ -1,25 +1,26 @@
 import React, { useState } from 'react';
 import { TodoItem } from '../../../frontend/types';
-import { useTasks } from '../../hooks/useTasks';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 
 interface TaskCardProps {
   task: TodoItem;
+  onUpdate: (id: string, updates: Partial<TodoItem>) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+  onToggle: (id: string) => Promise<void>;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
-  const { toggleTaskCompletion, updateTask, deleteTask } = useTasks();
+const TaskCard: React.FC<TaskCardProps> = ({ task, onUpdate, onDelete, onToggle }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
 
   const handleToggle = async () => {
-    await toggleTaskCompletion(task.id);
+    await onToggle(task.id);
   };
 
   const handleSave = async () => {
-    await updateTask(task.id, { title, description: description || null });
+    await onUpdate(task.id, { title, description: description || null });
     setIsEditing(false);
   };
 
@@ -31,7 +32,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this task?')) {
-      await deleteTask(task.id);
+      await onDelete(task.id);
     }
   };
 
