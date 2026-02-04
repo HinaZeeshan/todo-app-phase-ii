@@ -47,7 +47,7 @@ export const useAuth = () => {
 
         setAuthState({
           user: {
-            id: payload.userId || payload.sub,
+            id: payload.userId || payload.user_id || payload.sub,
             email: payload.email || '',
           },
           token,

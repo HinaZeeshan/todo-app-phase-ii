@@ -1,16 +1,33 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'; // turbo-ignore
-import { getAuthToken, getRefreshToken, setAuthToken, removeAuthToken } from './auth';
+import { getAuthToken, getRefreshToken, setAuthToken, removeAuthToken, getUserIdFromToken } from './auth';
 import { TodoItem } from '../types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 // Create Axios instance
+console.log('API_BASE_URL:', API_BASE_URL); // Debug logging
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+apiClient.interceptors.request.use((config) => {
+  console.log('[API] Request:', config.method?.toUpperCase(), config.url, config.data);
+  return config;
+});
+
+apiClient.interceptors.response.use(
+  (response) => {
+    console.log('[API] Response:', response.status, response.config.url);
+    return response;
+  },
+  (error) => {
+    console.error('[API] Error:', error.response?.status, error.config?.url, error.response?.data);
+    return Promise.reject(error);
+  }
+);
 
 // Request Interceptor: Attach Token
 apiClient.interceptors.request.use(
@@ -145,33 +162,61 @@ export const authApi = {
 // Todo API functions
 export const todoApi = {
   getAll: async () => {
-    const response = await apiClient.get<{ todos: TodoItem[] }>('/todos');
-    return { data: response.data };
+    const userId = getUserIdFromToken();
+    if (!userId) throw new Error("User not authenticated");
+    const response = await apiClient.get<{ data: TodoItem[] }>(`/${userId}/tasks`);
+    // Backend returns wrapped response with data property
+    return { data: response.data.data };
   },
 
   getById: async (id: string) => {
-    const response = await apiClient.get<{ todo: TodoItem }>(`/todos/${id}`);
+    const userId = getUserIdFromToken();
+    if (!userId) throw new Error("User not authenticated");
+    const response = await apiClient.get<TodoItem>(`/${userId}/tasks/${id}`);
     return { data: response.data };
   },
 
   create: async (todo: { title: string; description?: string | null; completed?: boolean }) => {
-    const response = await apiClient.post<{ todo: TodoItem }>('/todos', todo);
+    const userId = getUserIdFromToken();
+    if (!userId) throw new Error("User not authenticated");
+    const response = await apiClient.post<TodoItem>(`/${userId}/tasks`, todo);
     return { data: response.data };
   },
 
   update: async (id: string, todo: { title?: string; description?: string | null; completed?: boolean }) => {
-    const response = await apiClient.put<{ todo: TodoItem }>(`/todos/${id}`, todo);
-    return { data: response.data };
+    try {
+      const userId = getUserIdFromToken();
+      console.log(`[API] Updating task ${id} for user ${userId}`, todo);
+      if (!userId) throw new Error("User not authenticated");
+      const response = await apiClient.put<TodoItem>(`/${userId}/tasks/${id}`, todo);
+      console.log(`[API] Update response:`, response);
+      return { data: response.data };
+    } catch (error) {
+      console.error(`[API] Update error:`, error);
+      throw error;
+    }
   },
 
   toggleCompletion: async (id: string) => {
-    const response = await apiClient.patch<{ todo: TodoItem }>(`/todos/${id}/toggle`);
+    const userId = getUserIdFromToken();
+    if (!userId) throw new Error("User not authenticated");
+    // Backend uses specific endpoint for completion
+    const response = await apiClient.patch<TodoItem>(`/${userId}/tasks/${id}/complete`);
     return { data: response.data };
   },
 
   delete: async (id: string) => {
-    const response = await apiClient.delete<{ success: boolean }>(`/todos/${id}`);
-    return { data: response.data };
+    try {
+      const userId = getUserIdFromToken();
+      console.log(`[API] Deleting task ${id} for user ${userId}`);
+      if (!userId) throw new Error("User not authenticated");
+      const response = await apiClient.delete<{ success: boolean }>(`/${userId}/tasks/${id}`);
+      console.log(`[API] Delete response:`, response);
+      return { data: response.data };
+    } catch (error) {
+      console.error(`[API] Delete error:`, error);
+      throw error;
+    }
   }
 };
 

@@ -34,6 +34,14 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+
+
+# Add request ID middleware
+app.add_middleware(RequestIDMiddleware)
+
+# Add logging middleware
+app.add_middleware(LoggingMiddleware)
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -42,12 +50,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Add request ID middleware
-app.add_middleware(RequestIDMiddleware)
-
-# Add logging middleware
-app.add_middleware(LoggingMiddleware)
 
 # Add rate limiting
 add_rate_limiting(app)

@@ -10,7 +10,7 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import Button from '../../components/ui/Button';
 
 export default function TasksPage() {
-  const { tasks, loading, error, createTask, clearError } = useTasks();
+  const { tasks, loading, error, createTask, updateTask, deleteTask, toggleTaskCompletion, clearError } = useTasks();
   const { user } = useAuth();
   const [showForm, setShowForm] = useState(false);
 
@@ -65,7 +65,12 @@ export default function TasksPage() {
         ) : tasks.length === 0 ? (
           <EmptyState onCreateTask={() => setShowForm(true)} />
         ) : (
-          <TaskList tasks={tasks} />
+          <TaskList
+            tasks={tasks}
+            onUpdate={updateTask}
+            onDelete={deleteTask}
+            onToggle={toggleTaskCompletion}
+          />
         )}
       </div>
     </div>

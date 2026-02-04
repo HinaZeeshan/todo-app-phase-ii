@@ -28,6 +28,7 @@ class Task(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     user_id: UUID = Field(foreign_key="users.id", index=True, nullable=False)
     title: str = Field(max_length=500, nullable=False)
+    description: Optional[str] = Field(default=None, max_length=1000, nullable=True)
     is_completed: bool = Field(default=False, nullable=False)
     completed_at: Optional[datetime] = Field(default=None, nullable=True)
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)

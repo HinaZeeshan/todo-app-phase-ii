@@ -85,7 +85,7 @@ class TaskService:
             )
 
         # Create task via repository
-        task = await self.repository.create_task(user_id, task_data.title)
+        task = await self.repository.create_task(user_id, task_data.title, task_data.description)
         return task
 
     async def complete_task(
@@ -220,6 +220,7 @@ class TaskService:
         updated_task = await self.repository.update_task(
             task,
             title=task_data.title,
+            description=task_data.description,
             is_completed=task_data.is_completed
         )
         return updated_task
